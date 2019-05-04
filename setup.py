@@ -19,9 +19,9 @@ URL = 'https://github.com/blahblahblah5038/libpuz'
 EMAIL = 'libpuz@thesyslab.com'
 AUTHOR = 'blahblahblah5038, N6UDP'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = 0.2
+VERSION = 0.3
 SCRIPTS = [
-    'src/nonogram/nonogram'
+    'libpuz/nonogram/nonogram'
 ]
 
 # What packages are required for this module to be executed?

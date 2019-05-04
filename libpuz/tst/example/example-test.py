@@ -2,7 +2,7 @@
 # TODO delete after a real libpuz class with test exists
 
 import unittest
-from src.example import example
+from libpuz.example import example
 
 class TestExample(unittest.TestCase):
     def setUp(self):

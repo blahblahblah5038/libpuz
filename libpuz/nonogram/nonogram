@@ -12,10 +12,10 @@ parser.add_argument("--addcontraints",action='store_true',help='add_puzzle_const
 parser.add_argument("--svgout",help='svgoutfile',type=str)
 subparsers=parser.add_subparsers(title='subcommands',dest='subparser_name')
 jsongroup = subparsers.add_parser('json',help='JSON file input')
-jsongroup.add_argument("--json", help="JSON File Path", required=True, type=str)
+jsongroup.add_argument("--json", help="JSON File Path - see example in example.json in /usr/local/lib/pythonX.X/dist-packages/libpuz/nonogram", required=True, type=str)
 csvgroup = subparsers.add_parser('csv',help='CSV file input')
-csvgroup.add_argument("--columncsv", help="Column Constraint File Path", required=True, type=str)
-csvgroup.add_argument("--rowcsv", help="Row Constraint File Path", required=True, type=str)
+csvgroup.add_argument("--columncsv", help="Column Constraint File Path - see example in example.columns.csv in /usr/local/lib/pythonX.X/dist-packages/libpuz/nonogram", required=True, type=str)
+csvgroup.add_argument("--rowcsv", help="Row Constraint File Path - see example in example.rows.csv in /usr/local/lib/pythonX.X/dist-packages/libpuz/nonogram", required=True, type=str)
 
 args = parser.parse_args()
 
