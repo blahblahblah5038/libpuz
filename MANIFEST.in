@@ -1,0 +1,3 @@
+include README.md LICENSE
+include libpuz/nonogram/*.json
+include libpuz/nonogram/*.csv
