@@ -27,7 +27,8 @@ SCRIPTS = [
 # What packages are required for this module to be executed?
 REQUIRED = [
     'numpy',
-    'svgwrite'
+    'svgwrite',
+    'nonogram-solver'
 ]
 
 # What packages are optional?

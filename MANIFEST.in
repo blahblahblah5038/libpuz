@@ -1,1 +1,3 @@
 include README.md LICENSE
+include src/nonogram/*.json
+include src/nonogram/*.csv

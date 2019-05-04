@@ -5,6 +5,7 @@ from nonogram_solver import solver
 from nonogram_solver.nonogram import Nonogram
 import argparse
 
+#Parser creation and argumetns
 parser = argparse.ArgumentParser(description="Nonogram solver")
 parser.add_argument("--verbose",action='store_true')
 parser.add_argument("--addcontraints",action='store_true',help='add_puzzle_constraints arg to solver')
@@ -22,11 +23,13 @@ if not args.subparser_name:
     parser.print_help()
     exit(2)
 
+#Init nonogram class
 nonogram = Nonogram()
 nonogram.rows_constraints = []
 nonogram.cols_constraints = []
 nonogram.solution_list=[]
 
+#JSON parsing support, example in example.json
 if args.subparser_name == 'json':
     import json
     with open(args.json) as jsonfile:  
@@ -41,6 +44,7 @@ if args.subparser_name == 'json':
         for r in puzzle['rows']:
             nonogram.rows_constraints.append(r)
 
+#CSV parsing support, example in example.*.csv
 if args.subparser_name == 'csv':
     import csv
     with open(args.columncsv, newline='') as columncsv:
@@ -57,6 +61,7 @@ if args.subparser_name == 'csv':
 import io
 from contextlib import redirect_stdout
 
+#Call solver - redirect_stdout to avoid outputting when calling it
 verbose = io.StringIO()
 with redirect_stdout(verbose):
     solveable, nonogram_solver = solver.solve(nonogram, add_puzzle_constraints=args.addcontraints)
@@ -75,7 +80,7 @@ else:
 for r in nonogram_solver.puzzle_state:
     print(*list(map(lambda x: '█' if x==1 else ' ', r)),sep='')
 
-
+#SVG output logic
 if args.svgout:
     import svgwrite
     from svgwrite import cm
