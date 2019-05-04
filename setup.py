@@ -19,7 +19,7 @@ URL = 'https://github.com/blahblahblah5038/libpuz'
 EMAIL = 'libpuz@thesyslab.com'
 AUTHOR = 'blahblahblah5038, N6UDP'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = 0.1
+VERSION = 0.2
 SCRIPTS = [
     'src/nonogram/nonogram'
 ]
