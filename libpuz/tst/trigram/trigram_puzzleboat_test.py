@@ -1,6 +1,6 @@
 import unittest
 from collections import deque
-from src.trigram.trigram_puzzleboat import Trigram
+from libpuz.trigram.trigram_puzzleboat import Trigram
 
 class TestTrigramPuzzleBoat(unittest.TestCase):
 

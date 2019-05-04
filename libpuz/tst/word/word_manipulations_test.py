@@ -1,5 +1,5 @@
 import unittest
-from src.word.word_manipulations import *
+from libpuz.word.word_manipulations import *
 
 class TestLetterCountPattern(unittest.TestCase):
     def testLetterCountPatternBasic(self):
