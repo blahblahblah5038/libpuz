@@ -7,10 +7,10 @@ import argparse
 from collections import defaultdict
 import itertools
 from collections import deque
-from src.word.word_manipulations import *
+from libpuz.word.word_manipulations import *
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 
-def printToConsole(text):
-    print(text)
 
 def main():
     parser = argparse.ArgumentParser(description='A solver for trigrams in the style of http://www.pandamagazine.com/island4/puzzles/pb4_what_a_great_place_to_start_iaaa.pdf')
@@ -33,7 +33,10 @@ def main():
     print("running with wordLengths:'"+str(wordLengthsDirty)+"'")
     wordLengths = Trigram.preprocessWordLengths(wordLengthsDirty)
     printIfLessThan = args.printIfLessThan
-    Trigram.solve(dictionary,letterListDirty,letterList,wordLengths,printIfLessThan,printToConsole)
+    #TODO pretty print result better
+    result=Trigram.solve(dictionary,letterListDirty,letterList,wordLengths,printIfLessThan)
+    pp.pprint(result)
+
 
 class Trigram:
     '''
@@ -43,15 +46,14 @@ class Trigram:
     printIfLessThan = Print any failed solution with less than N characters remaining
     emitResult = a function that we'll call to send a result string. Must take a single string as an argument
     '''
-    def solve(dictionaryFile,letterBagSet,wordLengths,printIfLessThan,emit):
+    def solve(dictionaryFile,letterBagSet,wordLengths,printIfLessThan):
         dictionary = defaultdict(list)
         with open(dictionaryFile,"r") as f:
             for row in f:
-                patternBag = LetterPatternBag(row)
+                patternBag = LetterPatternBag(row.strip())
                 dictionary[patternBag.pattern.pattern].append(patternBag)
 
-        #A basic optimization to filter out words that shouldn't be recursed on
-        Trigram.solveInternal([],dictionary,"",LetterBag(""),letterBagSet,wordLengths,printIfLessThan,emit)
+        return Trigram.solveInternal([],dictionary,letterBagSet,wordLengths,printIfLessThan,True)
 
 
     '''
@@ -64,49 +66,51 @@ class Trigram:
     letterBagSet = a set of word bags that correspond to the input text. Ex. [LetterBag('abc'),LetterBag('def')]
     wordLengths = a deque of strings that correspond to the length of input words. Can have punctuation in the middle of a word. Ex. ['1','3\'1'] = I can't
     printIfLessThan = Print any failed solution with less than N characters remaining
-    emitResult = a function that we'll call to send a result string. Must take a single string as an argument
     '''
-    def solveInternal(result, dictionary,remainderRaw,remainderBag,letterBagSet,wordLengths,printIfLessThan,emit):
+    def solveInternal(result, dictionary,letterBagSet,wordLengths,printIfLessThan,top):
         if len(letterBagSet) == 0:
-            return
+            return []
 
         wordLengthsCopy = wordLengths.copy() # perform operations on a copy so backtracking works
         targetWord = wordLengthsCopy.pop()
         dictionarySubset = dictionary[targetWord]
 
-        # if we have a remainder filter down by things that start with it
-        if len(remainderRaw)>0:
-            dictionarySubset = filter(lambda bag:bag.underlying.startswith(remainderRaw),dictionarySubset)
-
         if len(dictionarySubset) == 0:
-            return
+            return []
 
-        nextRemainder,nextLetterBagSet,nextWord = Trigram.permuteBags(remainderRaw,remainderBag,letterBagSet,targetWord,dictionarySubset)
+        #TODO handle quote only for now..
+        rightLength=sum(int(x) for x in targetWord.split("'"))+len(targetWord.split("'"))-1
+        #Find subsets of the letterbagset that are the right length
+        sets = Trigram.findSets(letterBagSet,rightLength)
+        #Grab the dictionary set
+        possibleDictonary = {x.bag.underlyingLower for x in dictionarySubset}
 
-        resultCopy = result.copy()
-        resultCopy.append(nextWord)
-        if len(letterBagSet)<printIfLessThan:
-            emit(resultCopy)
+        if top:
+            wordLengthsInt=[sum(int(x) for x in targetWord.split("'"))+len(targetWord.split("'"))-1 for targetWord in wordLengths]
 
-        Trigram.solveInternal(result,dictionary,nextRemainder,LetterBag(nextRemainder),wordLengths,printIfLessThan,emit)
+        for s in sets:
+            #Find possible orderings of the subsets
+            possible = {"".join(x) for x in itertools.permutations(s,len(s))}
+            #Get the intersection of the set
+            targetsInDict=possible.intersection(possibleDictonary)
+            lbs=letterBagSet.copy()
+            for x in s:
+                lbs.remove(x)
+            nextresult = Trigram.solveInternal([],dictionary,lbs,wordLengthsCopy,printIfLessThan,False)
+            if top:
+                topResult = [nextresult+list(targetsInDict)]
+                if all(map(lambda l, s: len(s)==l,wordLengthsInt,topResult[0] )) and len(wordLengthsInt) == len(topResult[0]):
+                    result.extend(topResult)
+            else:
+                result.extend(nextresult+list(targetsInDict))
 
-    def permuteBags(remainderRaw,remainderBag,letterBagSet,targetWord,dictionarySubset):
-        for combo in itertools.permutations(letterBagSet, 4):
-            comboLetters = LetterBag.sum(combo).add(remainderBag)
-            if comboLetters.contains(targetWord):
-                constructed = remainderRaw
-                bagsUsed = []
-                for bag in combo:
-                    bagsUsed.append(bag)
-                    constructed = word + bag.underlying
-                    for word in dictionarySubset:
-                        if word == constructed:
-                            letterBagSet = letterBagSet.difference(set(bagsUsed))
-                            return "",letterBagSet,word
-                        if constructed.startswith(word):
-                            letterBagSet = letterBagSet.difference(set(bagsUsed))
-                            return constructed.replace(word, "", 1),letterBagSet,word
-
+        return result       
+    
+    def findSets(lbSet,length:int):
+        result = [[]]
+        for lb in lbSet:
+            result.extend([x + [lb] for x in result if len("".join(x+[lb])) <= length])
+        return list(filter(lambda x: len("".join(x))==length,result))
 
     def preprocessWordLengths(wordLengths):
         result = deque()

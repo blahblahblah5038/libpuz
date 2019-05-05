@@ -1,19 +1,22 @@
 import unittest
 from collections import deque
 from libpuz.trigram.trigram_puzzleboat import Trigram
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 
 class TestTrigramPuzzleBoat(unittest.TestCase):
 
     def setUp(self):
         self.results = []
 
-    def appendResult(self,result):
-        self.results.append(result)
-
 class TestResult(TestTrigramPuzzleBoat):
     def testBasic(self):
-        Trigram.solve('/usr/share/dict/words',['its','clo','bbe','rin','g'],['2\'1','10','4!'],0,self.appendResult)
-        print(self.results)
+        self.results = Trigram.solve('/usr/share/dict/words',['tim','e'],['4'],0)
+        pp.pprint(self.results)
+        self.assertEqual(['time'],self.results[0])
+    def testLessBasic(self):
+        self.results = Trigram.solve('/usr/share/dict/words',['it\'s','clo','bbe','rin','g','tim','e'],['2\'1','10','4'],0)
+        pp.pprint(self.results)
         self.assertEqual(['it\'s','clobbering','time'],self.results[0])
 
     def testPreprocessWordLengths(self):
