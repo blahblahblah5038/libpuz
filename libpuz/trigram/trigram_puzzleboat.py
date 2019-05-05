@@ -27,14 +27,14 @@ def main():
     dictionary = args.dictionary
     print("running with dictionary:'"+dictionary+"'")
     letterListDirty = args.letterList[0].split(delimiter)
-    print("running with letterList:'"+str(letterListDirty)+"'")
     letterList = Trigram.preprocessLetterList(letterListDirty)
+    print("running with letterList:'"+str(letterList)+"'")
     wordLengthsDirty = args.wordLengths[0].split(delimiter)
-    print("running with wordLengths:'"+str(wordLengthsDirty)+"'")
     wordLengths = Trigram.preprocessWordLengths(wordLengthsDirty)
+    print("running with wordLengths:'"+str(wordLengths)+"'")
     printIfLessThan = args.printIfLessThan
     #TODO pretty print result better
-    result=Trigram.solve(dictionary,letterListDirty,letterList,wordLengths,printIfLessThan)
+    result=Trigram.solve(dictionary,letterList,wordLengths,printIfLessThan)
     pp.pprint(result)
 
 
@@ -127,7 +127,8 @@ class Trigram:
     def preprocessLetterList(letterList):
         result = set()
         for letters in letterList:
-            result.add(LetterBag(letters))
+            result.add(letters.lower())
+            #result.add(LetterBag(letters))
         return result
 
 class LetterPatternBag:
