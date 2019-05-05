@@ -85,6 +85,7 @@ class Trigram:
         #Grab the dictionary set
         possibleDictonary = {x.bag.underlyingLower for x in dictionarySubset}
 
+        #We need integer lengths to check word length if we are the top
         if top:
             wordLengthsInt=[sum(int(x) for x in targetWord.split("'"))+len(targetWord.split("'"))-1 for targetWord in wordLengths]
 
@@ -94,11 +95,15 @@ class Trigram:
             #Get the intersection of the set
             targetsInDict=possible.intersection(possibleDictonary)
             lbs=letterBagSet.copy()
+            #Remove used letter bags
             for x in s:
                 lbs.remove(x)
+            #Call self with reduced options
             nextresult = Trigram.solveInternal([],dictionary,lbs,wordLengthsCopy,printIfLessThan,False)
             if top:
+                #TODO This is probably not where we should filter results
                 topResult = [nextresult+list(targetsInDict)]
+                #Make sure we actually filter down to just matching word lengths
                 if all(map(lambda l, s: len(s)==l,wordLengthsInt,topResult[0] )) and len(wordLengthsInt) == len(topResult[0]):
                     result.extend(topResult)
             else:
@@ -106,6 +111,7 @@ class Trigram:
 
         return result       
     
+    #Finds sets of the correct length
     def findSets(lbSet,length:int):
         result = [[]]
         for lb in lbSet:
